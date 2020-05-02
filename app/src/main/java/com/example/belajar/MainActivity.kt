@@ -52,6 +52,13 @@ class MainActivity : AppCompatActivity() {
 
         isLoading = true
         loading_text.text = "Now Loading ..."
+
+        var dummyDataObject: List<DataObject> = emptyList()
+        var dummyAddObject = AdObject("","","")
+        var dummyHomeModel = HomeModel(0,0,0,0,dummyDataObject,dummyAddObject)
+
+        my_recycler_view.adapter = MainAdapter(dummyHomeModel, true)
+
         client.newCall(request).enqueue(object: Callback {
             override fun onResponse(call: Call, response: Response) {
                 val body = response?.body?.string()
@@ -66,10 +73,8 @@ class MainActivity : AppCompatActivity() {
                 isLoading = false
                 loading_text.text = ""
 
-                println("TOTAL PAGEEEEEEEEEEEEEEE")
-                println(totalPage)
                 runOnUiThread{
-                    my_recycler_view.adapter = MainAdapter(homeModel)
+                    my_recycler_view.adapter = MainAdapter(homeModel, false)
                     my_recycler_view.scheduleLayoutAnimation()
                 }
             }
