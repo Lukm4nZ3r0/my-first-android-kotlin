@@ -1,32 +1,28 @@
 package com.example.belajar
 
-import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.gson.GsonBuilder
-import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.activity_second.*
+import kotlinx.android.synthetic.main.activity_second.next_button
+import kotlinx.android.synthetic.main.activity_second.prev_button
 import okhttp3.*
 import java.io.IOException
 
-class MainActivity : AppCompatActivity() {
-
+class SecondActivity : AppCompatActivity() {
     var currentPage: Int = 1
     var totalPage: Int = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        setContentView(R.layout.activity_second)
 
-        link_to_other_activity.setOnClickListener {
-            val intentToOtherActivity = Intent(this, SecondActivity::class.java).apply {
-                putExtra("MESSAGE_KEY", "Daftar Orang Random")
-            }
-            startActivity(intentToOtherActivity)
-        }
+        title_page.text = "Your Text Here !"
+        subtitle_page.text = intent.getStringExtra("MESSAGE_KEY")
 
-        my_recycler_view.layoutManager = LinearLayoutManager(this)
+        item_does_recycle_view.layoutManager = LinearLayoutManager(this)
     }
 
     override fun onResume() {
@@ -49,7 +45,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun fetchJson(page: Int, mainActivity: MainActivity){
+    private fun fetchJson(page: Int, thisActivity: SecondActivity){
         val url = "https://reqres.in/api/users?page=${page}"
         val request = Request
             .Builder()
@@ -62,11 +58,10 @@ class MainActivity : AppCompatActivity() {
         var dummyAddObject = AdObject("","","")
         var dummyHomeModel = HomeModel(0,0,0,0,dummyDataObject,dummyAddObject)
 
-        my_recycler_view.adapter = MainAdapter(dummyHomeModel, true)
+        item_does_recycle_view.adapter = SecondAdapter(dummyHomeModel, true)
 
-
-        mainActivity.next_button.isEnabled = false
-        mainActivity.prev_button.isEnabled = false
+        thisActivity.next_button.isEnabled = false
+        thisActivity.prev_button.isEnabled = false
         client.newCall(request).enqueue(object: Callback {
             override fun onResponse(call: Call, response: Response) {
                 val body = response?.body?.string()
@@ -80,15 +75,15 @@ class MainActivity : AppCompatActivity() {
                 currentPage = page
 
                 runOnUiThread{
-                    mainActivity.next_button.isEnabled = true
-                    mainActivity.prev_button.isEnabled = true
-                    my_recycler_view.adapter = MainAdapter(homeModel, false)
-                    my_recycler_view.scheduleLayoutAnimation()
+                    thisActivity.next_button.isEnabled = true
+                    thisActivity.prev_button.isEnabled = true
+                    item_does_recycle_view.adapter = SecondAdapter(homeModel, false)
+                    item_does_recycle_view.scheduleLayoutAnimation()
                 }
             }
             override fun onFailure(call: Call, e: IOException) {
                 println("GAGAL MENDAPATKAN REQUEST")
-                val alertDialog: AlertDialog.Builder = AlertDialog.Builder(mainActivity)
+                val alertDialog: AlertDialog.Builder = AlertDialog.Builder(thisActivity)
                 runOnUiThread {
                     alertDialog.setTitle("Try to connecting again!")
                     alertDialog.setMessage("Please wait ..!")
@@ -98,7 +93,7 @@ class MainActivity : AppCompatActivity() {
                     alertDialog.show()
 
 //                    recursive
-                    fetchJson(page, mainActivity)
+                    fetchJson(page, thisActivity)
                 }
             }
         })
